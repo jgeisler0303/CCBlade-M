@@ -82,6 +82,8 @@ typedef struct {
     double *Fedge;
     double *cp_i;
     double *ct_i;
+    double *cf_i;
+    double *ce_i;
     double *cp;
     double *ct;
 } ccResult_t;
@@ -149,8 +151,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         
     ccResult_t result;
     
-    const char *field_names[]= {"converge", "phi", "a", "ap", "cl", "cd", "v_res", "Fl", "Fd", "Max", "Mtan", "Fax", "Ftan", "Fflap", "Fedge", "cp_i", "ct_i", "cp", "ct"};
-    plhs[0]= mxCreateStructMatrix(1, 1, 19, field_names);
+    const char *field_names[]= {"converge", "phi", "a", "ap", "cl", "cd", "v_res", "Fl", "Fd", "Max", "Mtan", "Fax", "Ftan", "Fflap", "Fedge", "cp_i", "ct_i", "cp", "ct", "cf_i", "ce_i"};
+    plhs[0]= mxCreateStructMatrix(1, 1, 21, field_names);
     mxArray* field_value;
 
     field_value= mxCreateNumericMatrix(n, 1, mxINT32_CLASS, mxREAL);
@@ -221,6 +223,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     mxSetField(plhs[0], 0, "ct_i", field_value);
     result.ct_i= mxGetPr(field_value);
 
+    field_value= mxCreateDoubleMatrix(n, 1, mxREAL);
+    mxSetField(plhs[0], 0, "cf_i", field_value);
+    result.cf_i= mxGetPr(field_value);
+    
+    field_value= mxCreateDoubleMatrix(n, 1, mxREAL);
+    mxSetField(plhs[0], 0, "ce_i", field_value);
+    result.ce_i= mxGetPr(field_value);
+    
     field_value= mxCreateDoubleMatrix(1, 1, mxREAL);
     mxSetField(plhs[0], 0, "cp", field_value);
     result.cp= mxGetPr(field_value);
@@ -675,6 +685,9 @@ void aeroForces(double lambda, double pitch, double v_wind, ccBlade_t &ccBlade, 
         double ProtVec= 3.0*result.Mtan[node]*omega;
         result.cp_i[node]= ProtVec / Pwind;
         result.ct_i[node]= 3.0*result.Fax[node] / Fwind;
+        
+        result.cf_i[node]= result.Fflap[node] / Fwind;
+        result.ce_i[node]= result.Fedge[node] / Fwind;
     }   
     
     double Prot= 3.0*Mtan_sum*omega;
