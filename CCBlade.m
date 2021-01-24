@@ -76,10 +76,10 @@ Ftan= -Fd.*cos(phi) + Fl.*sin(phi);
 result.Fax= Fax;
 result.Ftan= Ftan;
 
-Fflap= Fax.*cos(pitch) + Ftan.*sin(pitch);
-Fedge= -Fax.*sin(pitch) + Ftan.*cos(pitch);
-result.Fflap= Fflap;
-result.Fedge= Fedge;
+FBx= Fax.*cos(pitch) + Ftan.*sin(pitch);
+FBy= Fax.*sin(pitch) - Ftan.*cos(pitch);
+result.FBx= FBx;
+result.FBy= FBy;
 
 Max_sect= int_torque(fax, data.R);
 result.Max=  0.5*[Max_sect(1); Max_sect(1:end-1)+Max_sect(2:end); Max_sect(end)];
@@ -99,5 +99,5 @@ result.ct= 3*sum(Fax) / Fwind;
 
 result.cp_i= ProtVec / Pwind;
 result.ct_i= 3*Fax / Fwind;
-result.cf_i= Fflap / Fwind;
-result.ce_i= Fedge / Fwind;
+result.cbx_i= FBx / Fwind;
+result.cby_i= FBy / Fwind;

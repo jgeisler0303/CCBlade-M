@@ -20,8 +20,8 @@ AeroFields.cp= nan(n_th, n_lam);
 AeroFields.ct= nan(n_th, n_lam);
 AeroFields.cpi= nan(n_th, n_lam, n_R);
 AeroFields.cti= nan(n_th, n_lam, n_R);
-AeroFields.cfi= nan(n_th, n_lam, n_R);
-AeroFields.cei= nan(n_th, n_lam, n_R);
+AeroFields.cbxi= nan(n_th, n_lam, n_R);
+AeroFields.cbyi= nan(n_th, n_lam, n_R);
 
 
 for idxTheta= 1:n_th
@@ -37,8 +37,8 @@ for idxTheta= 1:n_th
         AeroFields.ct(idxTheta, idxLambda)= result.ct;        
         AeroFields.cpi(idxTheta, idxLambda, :)= result.cp_i;
         AeroFields.cti(idxTheta, idxLambda, :)= result.ct_i;
-        AeroFields.cfi(idxTheta, idxLambda, :)= result.cf_i;
-        AeroFields.cei(idxTheta, idxLambda, :)= result.ce_i;
+        AeroFields.cbxi(idxTheta, idxLambda, :)= result.cbx_i;
+        AeroFields.cbyi(idxTheta, idxLambda, :)= result.cby_i;
     end
 end
 
@@ -56,7 +56,7 @@ if isfield(data, 'ModalShapes')
     for i= 1:length(AeroFields.ModalShapes)
         for idxTheta= 1:n_th
             for idxLambda= 1:n_lam
-                AeroFields.(sprintf('cb%di', i))(idxTheta, idxLambda, :)= sum([squeeze(AeroFields.cfi(idxTheta, idxLambda, :)) squeeze(AeroFields.cfi(idxTheta, idxLambda, :))] .* AeroFields.ModalShapes{i}, 2);
+                AeroFields.(sprintf('cb%di', i))(idxTheta, idxLambda, :)= sum([squeeze(AeroFields.cbxi(idxTheta, idxLambda, :)) squeeze(AeroFields.cbyi(idxTheta, idxLambda, :))] .* AeroFields.ModalShapes{i}, 2);
                 AeroFields.(sprintf('cb%d', i))(idxTheta, idxLambda)= sum(AeroFields.(sprintf('cb%di', i))(idxTheta, idxLambda, :));
             end
         end
@@ -101,10 +101,10 @@ dcXi_dom_v= dcXi_dlam * R(end); % dcXi_dom_v= dcXi_dom * v;
 dcXi_dvy_v= dcXi_dom_v ./ RR;
 
 % verified in cx_qe_qf.wxmx
-ModalShapeF= repmat(permute(AeroFields.ModalShapes{n_shape}(:, 1), [3 2 1]), nth, nlam, 1);
-ModalShapeE= repmat(permute(AeroFields.ModalShapes{n_shape}(:, 2), [3 2 1]), nth, nlam, 1);
+ModalShapeX= repmat(permute(AeroFields.ModalShapes{n_shape}(:, 1), [3 2 1]), nth, nlam, 1);
+ModalShapeY= repmat(permute(AeroFields.ModalShapes{n_shape}(:, 2), [3 2 1]), nth, nlam, 1);
 
-dcXi_qdotmo_vf= (-dcXi_dvx_v .* COS + dcXi_dvy_v .* SIN - 2*COS.*AeroFields.(sensor_i)) .* ModalShapeF;
-dcXi_qdotmo_ve= (-dcXi_dvx_v .* SIN - dcXi_dvy_v .* COS - 2*SIN.*AeroFields.(sensor_i)) .* ModalShapeE;
+dcXi_dvbx_v= (-dcXi_dvx_v .* COS + dcXi_dvy_v .* SIN - 2*COS.*AeroFields.(sensor_i));
+dcXi_dvby_v= (-dcXi_dvx_v .* SIN - dcXi_dvy_v .* COS - 2*SIN.*AeroFields.(sensor_i));
 
-AeroFields.(sprintf('d%s_dvb%d_v', sensor, n_shape))= sum(dcXi_qdotmo_vf, 3) + sum(dcXi_qdotmo_ve, 3);
+AeroFields.(sprintf('d%s_dvb%d_v', sensor, n_shape))= sum(dcXi_dvbx_v.*ModalShapeX, 3) + sum(dcXi_dvby_v.*ModalShapeY, 3);
