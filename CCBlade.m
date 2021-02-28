@@ -68,7 +68,7 @@ Fd= 0.5*[Fd_sect(1); Fd_sect(1:end-1)+Fd_sect(2:end); Fd_sect(end)];
 result.Fl= Fl;
 result.Fd= Fd;
 
-Fax_sect= (fax(1:end-1)+fax(2:end))/2 .* dR;;
+Fax_sect= (fax(1:end-1)+fax(2:end))/2 .* dR;
 Ftan_sect= (ftan(1:end-1)+ftan(2:end))/2 .* dR;
 
 Fax= Fl.*cos(phi) + Fd.*sin(phi);
@@ -96,8 +96,10 @@ Pwind= Fwind*v_wind;
 
 result.cp= Prot / Pwind;
 result.ct= 3*sum(Fax) / Fwind;
+result.cs= sum(Ftan) / Fwind;
 
 result.cp_i= ProtVec / Pwind;
 result.ct_i= 3*Fax / Fwind;
+result.cs_i= Ftan / Fwind;
 result.cbx_i= FBx / Fwind;
 result.cby_i= FBy / Fwind;

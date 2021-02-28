@@ -82,10 +82,12 @@ typedef struct {
     double *FBy;
     double *cp_i;
     double *ct_i;
+    double *cs_i;
     double *cbx_i;
     double *cby_i;
     double *cp;
     double *ct;
+    double *cs;
 } ccResult_t;
 
 bool tryGetData(double &value, const char *name, const mxArray *mxData);
@@ -151,8 +153,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         
     ccResult_t result;
     
-    const char *field_names[]= {"converge", "phi", "a", "ap", "cl", "cd", "v_res", "Fl", "Fd", "Max", "Mtan", "Fax", "Ftan", "FBx", "FBy", "cp_i", "ct_i", "cp", "ct", "cbx_i", "cby_i"};
-    plhs[0]= mxCreateStructMatrix(1, 1, 21, field_names);
+    const char *field_names[]= {"converge", "phi", "a", "ap", "cl", "cd", "v_res", "Fl", "Fd", "Max", "Mtan", "Fax", "Ftan", "FBx", "FBy", "cp_i", "ct_i", "cs_i", "cp", "ct", "cs", "cbx_i", "cby_i"};
+    plhs[0]= mxCreateStructMatrix(1, 1, 23, field_names);
     mxArray* field_value;
 
     field_value= mxCreateNumericMatrix(n, 1, mxINT32_CLASS, mxREAL);
@@ -224,6 +226,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     result.ct_i= mxGetPr(field_value);
 
     field_value= mxCreateDoubleMatrix(n, 1, mxREAL);
+    mxSetField(plhs[0], 0, "cs_i", field_value);
+    result.cs_i= mxGetPr(field_value);
+
+    field_value= mxCreateDoubleMatrix(n, 1, mxREAL);
     mxSetField(plhs[0], 0, "cbx_i", field_value);
     result.cbx_i= mxGetPr(field_value);
     
@@ -238,6 +244,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     field_value= mxCreateDoubleMatrix(1, 1, mxREAL);
     mxSetField(plhs[0], 0, "ct", field_value);
     result.ct= mxGetPr(field_value);
+
+    field_value= mxCreateDoubleMatrix(1, 1, mxREAL);
+    mxSetField(plhs[0], 0, "cs", field_value);
+    result.cs= mxGetPr(field_value);
 
     CCBlade(lambda, pitch, ccBlade, result);
     aeroForces(lambda, pitch, v_wind, ccBlade, result);
@@ -666,6 +676,7 @@ void aeroForces(double lambda, double pitch, double v_wind, ccBlade_t &ccBlade, 
     
     double Mtan_sum= 0.0;
     double Fax_sum= 0.0;
+    double Ftan_sum= 0.0;
     for(int node= 0; node<n_nodes; ++node) {
         double sphi= sin(result.phi[node]);
         double cphi= cos(result.phi[node]);
@@ -681,10 +692,12 @@ void aeroForces(double lambda, double pitch, double v_wind, ccBlade_t &ccBlade, 
 
         Mtan_sum+= result.Mtan[node];
         Fax_sum+= result.Fax[node];
+        Ftan_sum+= result.Ftan[node];
 
         double ProtVec= 3.0*result.Mtan[node]*omega;
         result.cp_i[node]= ProtVec / Pwind;
         result.ct_i[node]= 3.0*result.Fax[node] / Fwind;
+        result.cs_i[node]= result.Ftan[node] / Fwind;
         
         result.cbx_i[node]= result.FBx[node] / Fwind;
         result.cby_i[node]= result.FBy[node] / Fwind;
@@ -694,4 +707,5 @@ void aeroForces(double lambda, double pitch, double v_wind, ccBlade_t &ccBlade, 
 
     result.cp[0]= Prot / Pwind;
     result.ct[0]= 3.0*Fax_sum / Fwind;
+    result.cs[0]= -Ftan_sum / Fwind;
 }
