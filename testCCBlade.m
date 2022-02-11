@@ -26,10 +26,10 @@ ADBldFile= strrep(GetFASTPar(adDataOut, 'ADBlFile(1)'), '"', '');
 adbldDataOut = FAST2Matlab(fullfile(fst_dir, ADBldFile));
 
 data= [];
-data.R= adbldDataOut.BldNodes(:, find(strcmp(adbldDataOut.BldNodesHdr, 'BlSpn'))) + GetFASTPar(edDataOut, 'HubRad');
-data.chord= adbldDataOut.BldNodes(:, find(strcmp(adbldDataOut.BldNodesHdr, 'BlChord')));
-data.twist= adbldDataOut.BldNodes(:, find(strcmp(adbldDataOut.BldNodesHdr, 'BlTwist')))/180*pi;
-data.airfoil_idx= adbldDataOut.BldNodes(:, find(strcmp(adbldDataOut.BldNodesHdr, 'BlAFID')));
+data.R= getFASTTableColumn(adbldDataOut.BldNode, 'BlSpn') + GetFASTPar(edDataOut, 'HubRad');
+data.chord= getFASTTableColumn(adbldDataOut.BldNode, 'BlChord');
+data.twist= getFASTTableColumn(adbldDataOut.BldNode, 'BlTwist')/180*pi;
+data.airfoil_idx= getFASTTableColumn(adbldDataOut.BldNode, 'BlAFID');
 data.rho= GetFASTPar(adDataOut, 'AirDens');
 data.TipLoss= double(strcmpi(GetFASTPar(adDataOut, 'TipLoss'), 'true'));
 data.HubLoss= double(strcmpi(GetFASTPar(adDataOut, 'HubLoss'), 'true'));
@@ -45,15 +45,11 @@ if strcmpi(strrep(data.IndToler, '"', ''), 'default')
     data.IndToler= 1e-6;
 end
 
-idx_alpha= GetFASTPar(adDataOut, 'InCol_Alfa');
-idx_cl= GetFASTPar(adDataOut, 'InCol_Cl');
-idx_cd= GetFASTPar(adDataOut, 'InCol_Cd');
-% idx_cm= GetFASTPar(adDataOut, 'InCol_Cm');
 for i= 1:length(adDataOut.FoilNm)
     AirFoil= FAST2Matlab(fullfile(fst_dir, strrep(adDataOut.FoilNm{i}, '"', '')));
-    data.AirFoil(i).alpha= AirFoil.AFCoeff(:, idx_alpha)/180*pi;
-    data.AirFoil(i).cl= AirFoil.AFCoeff(:, idx_cl);
-    data.AirFoil(i).cd= AirFoil.AFCoeff(:, idx_cd);
+    data.AirFoil(i).alpha= getFASTTableColumn(AirFoil.AFCoeff, 'Alpha')/180*pi;
+    data.AirFoil(i).cl= getFASTTableColumn(AirFoil.AFCoeff, 'Cl');
+    data.AirFoil(i).cd= getFASTTableColumn(AirFoil.AFCoeff, 'Cd');
 end
 
 data.acorr= 0.3;
