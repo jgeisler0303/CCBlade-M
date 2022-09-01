@@ -1,8 +1,12 @@
+#if _WIN32
+    #define _USE_MATH_DEFINES
+#endif
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits>
+#include <stdint.h>
 
 #include "mex.h"
 #ifndef  HAVE_OCTAVE
