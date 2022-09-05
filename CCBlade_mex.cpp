@@ -697,7 +697,7 @@ void aeroForces(double lambda, double pitch, double v_wind, ccBlade_t &ccBlade, 
         double ProtVec= 3.0*result.Mtan[node]*omega;
         result.cp_i[node]= ProtVec / Pwind;
         result.ct_i[node]= 3.0*result.Fax[node] / Fwind;
-        result.cs_i[node]= result.Ftan[node] / Fwind;
+        result.cs_i[node]= -result.Ftan[node] / Fwind;
         
         result.cbx_i[node]= result.FBx[node] / Fwind;
         result.cby_i[node]= result.FBy[node] / Fwind;

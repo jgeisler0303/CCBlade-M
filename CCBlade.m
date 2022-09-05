@@ -55,7 +55,7 @@ result.v_res= v_res;
 fl= rho/2*data.chord .* v_res.^2 .* cl;
 fd= rho/2*data.chord .* v_res.^2 .* cd;
 fax= fl.*cos(phi) + fd.*sin(phi);
-ftan= -fd.*cos(phi) + fl.*sin(phi);
+ftan= -fd.*cos(phi) + fl.*sin(phi); % positive in direction of rotation
 
 
 dR= diff(data.R);
@@ -72,7 +72,7 @@ Fax_sect= (fax(1:end-1)+fax(2:end))/2 .* dR;
 Ftan_sect= (ftan(1:end-1)+ftan(2:end))/2 .* dR;
 
 Fax= Fl.*cos(phi) + Fd.*sin(phi);
-Ftan= -Fd.*cos(phi) + Fl.*sin(phi);
+Ftan= -Fd.*cos(phi) + Fl.*sin(phi); % positive in direction of rotation
 result.Fax= Fax;
 result.Ftan= Ftan;
 
@@ -96,10 +96,10 @@ Pwind= Fwind*v_wind;
 
 result.cp= Prot / Pwind;
 result.ct= 3*sum(Fax) / Fwind;
-result.cs= sum(Ftan) / Fwind;
+result.cs= -sum(Ftan) / Fwind;
 
 result.cp_i= ProtVec / Pwind;
 result.ct_i= 3*Fax / Fwind;
-result.cs_i= Ftan / Fwind;
+result.cs_i= -Ftan / Fwind;
 result.cbx_i= FBx / Fwind;
 result.cby_i= FBy / Fwind;
